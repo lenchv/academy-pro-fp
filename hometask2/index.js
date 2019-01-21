@@ -18,6 +18,8 @@ const table = [
     ]
 ];
 
+console.log(table);
+
 printTable(table);
 
 const newColumn = 2;
@@ -25,5 +27,7 @@ const newRow = 2;
 const item = table[0][0];
 
 const newTable = rearrangeMatrix(table, newColumn, newRow, item);
+
+console.log(newTable);
 
 printTable(newTable);

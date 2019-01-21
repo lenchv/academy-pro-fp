@@ -1,5 +1,8 @@
 const rearrangeMatrix = (table, newColumn, newRow, item) => {
-    const { flow, flatten, findIndex, last, groupBy, map } = _;
+    const { flow, flatten, findIndex, last, first, groupBy, map, memoize } = _;
+
+    const shiftLeft = items => [...items.slice(1), first(items)];
+    const shiftRight = items => [last(items), ...items.slice(0, -1)];
 
     const splitArray = (from, to) => items => [
         items.slice(0, from ),
@@ -7,49 +10,70 @@ const rearrangeMatrix = (table, newColumn, newRow, item) => {
         items.slice(to + 1)
     ];
 
-    const nextRow = (row, length) => (row + 1) % length;
+    const getTableSide = (totalLength) => Math.ceil(Math.sqrt(totalLength));
 
-    const getCell = ({ column, row, position }) => ({
-        row: row,
-        column: column + Number(row === 0),
-        position: position + 1
-    });
+    const generateRow = rowSize => row => {
+        let i = 0;
 
-    const reCalculate = (startItem, length) => (items) => items.map((item, i) => ({ ...item, ...getCell({
-        row: nextRow(startItem.row + i, length),
-        column: startItem.column,
-        position: startItem.position
-    })}));
+        return () => (row + (++i)) % rowSize;
+    };
+    const generateColumn = rowSize => column => row => {
+        let i = row;
+        let j = 0;
+
+        return () => ifElse((++i % rowSize) === 0)(() => column + (++j))(() => column + j)() % rowSize;
+    };
+    const generatePosition = length => position => {
+        let i = 0;
+
+        return () => (position + ++i) % length;
+    };
+
+    const generateItem = (initialItem, length) => {
+        let nextRow = generateRow(getTableSide(length))(initialItem.row);
+        let nextColumn = generateColumn(getTableSide(length))(initialItem.column)(initialItem.row);
+        let nextPosition = generatePosition(length)(initialItem.position);
+
+        return (currentItem) => ({
+            ...currentItem,
+            ...{
+                row: nextRow(),
+                column: nextColumn(),
+                position: nextPosition()
+            }
+        });
+    };
+
+    const reCalculatePositions = (startItem, length) => map(generateItem(startItem, length));
 
     const getStartItem = (start, target, end) => last(start) || last(end) || last(target);
 
-    const reGroup = (rowSize) => (shift) => ([ start, target, end ]) => [
+    const reGroup = (length) => (shift) => ([ start, target, end ]) => [
         ...start,
         ...flow(
             shift,
-            reCalculate(getStartItem(start, target, end), rowSize)
+            reCalculatePositions(getStartItem(start, target, end), length)
         )(target),
         ...end
     ];
 
-    const forward = (rowSize) => (from, to) => [
+    const forward = (length) => (from, to) => [
         splitArray(from, to),
-        reGroup(rowSize)(shiftLeft)
+        reGroup(length)(shiftLeft)
     ];
 
-    const backward = (rowSize) => (from, to) => [
+    const backward = (length) => (from, to) => [
         splitArray(to, from),
-        reGroup(rowSize)(shiftRight)
+        reGroup(length)(shiftRight)
     ];
 
     const shiftItem = (item, column, row) => (items) => {
         const from = findIndex(item, items);
         const to = findIndex({ column, row }, items);
         const direction = (from < to);
-        const rowSize = Math.ceil(Math.sqrt(items.length));
 
         return flow(
-            ...ifElse(direction)(forward)(backward)(rowSize)(from, to)
+            ...ifElse(direction)(forward)(backward)(items.length)(from, to)
         )(items);
     };
 
