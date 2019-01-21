@@ -1,30 +1,64 @@
 const rearrangeMatrix = (table, newColumn, newRow, item) => {
-    const { flow, flatten, findIndex, partial, groupBy, map } = _;
+    const { flow, flatten, findIndex, last, groupBy, map } = _;
 
-    const setItem = (items, item, position, column, row ) => setToArray(
-        items,
-        position,
-        { ...item, ...{
-            position: position + 1,
-            column,
-            row
-        }}
-    );
+    const splitArray = (from, to) => items => [
+        items.slice(0, from ),
+        items.slice(from, to + 1),
+        items.slice(to + 1)
+    ];
 
-    const changePosition = (item, column, row) => (items) => {
-        const position = findIndex(item, items);
-        const newPosition = findIndex({ column, row }, items);
+    const nextRow = (row, length) => (row + 1) % length;
+
+    const getCell = ({ column, row, position }) => ({
+        row: row,
+        column: column + Number(row === 0),
+        position: position + 1
+    });
+
+    const reCalculate = (startItem, length) => (items) => items.map((item, i) => ({ ...item, ...getCell({
+        row: nextRow(startItem.row + i, length),
+        column: startItem.column,
+        position: startItem.position
+    })}));
+
+    const getStartItem = (start, target, end) => last(start) || last(end) || last(target);
+
+    const reGroup = (rowSize) => (shift) => ([ start, target, end ]) => [
+        ...start,
+        ...flow(
+            shift,
+            reCalculate(getStartItem(start, target, end), rowSize)
+        )(target),
+        ...end
+    ];
+
+    const forward = (rowSize) => (from, to) => [
+        splitArray(from, to),
+        reGroup(rowSize)(shiftLeft)
+    ];
+
+    const backward = (rowSize) => (from, to) => [
+        splitArray(to, from),
+        reGroup(rowSize)(shiftRight)
+    ];
+
+    const shiftItem = (item, column, row) => (items) => {
+        const from = findIndex(item, items);
+        const to = findIndex({ column, row }, items);
+        const direction = (from < to);
+        const rowSize = Math.ceil(Math.sqrt(items.length));
 
         return flow(
-            partial(setItem, [_, items[newPosition], position, item.column, item.row]),
-            partial(setItem, [_, items[position], newPosition, column, row])
+            ...ifElse(direction)(forward)(backward)(rowSize)(from, to)
         )(items);
     };
 
+    const toArray = map(item => item);
+
     return flow(
         flatten,
-        changePosition(item, newColumn, newRow),
+        shiftItem(item, newColumn, newRow),
         groupBy('column'),
-        map(v => v)
+        toArray
     )(table);
 };
