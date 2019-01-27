@@ -1,7 +1,11 @@
 import { pipe, reduce } from '../functions/index.js';
 
 const appDispatcher = (uiDispatcher, actionDispatcher) => (actions, store) => {
-    const dispatch = (state) => uiDispatcher(state, actionDispatcher(actions)(dispatch)(state));
+    const dispatch = (state) => {
+        console.log(state);
+        
+        return uiDispatcher(state, actionDispatcher(actions)(dispatch)(state))
+    };
 
     return dispatch(store);
 };
@@ -19,7 +23,7 @@ const getUiDispatcher = (domService, render) => (root) => (store, actions) => {
 
     return domService.appendChildren(
         root,
-        render(domService)(
+        render(
             store,
             actions
         )

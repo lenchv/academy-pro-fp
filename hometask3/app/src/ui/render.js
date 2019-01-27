@@ -1,19 +1,15 @@
-import components from './components/index.js';
+import { pipe } from '../functions/index.js';
+import pages from './pages/index.js';
+import routes from './routes.js';
 
-const render = (domService) => (store, actions) => {
-    const {
-        Button,
-        ClearButton,
-        List
-    } = components(domService);
+const onChangeRoute = (historyService) => (actions) => {
+    historyService.onChangeRoute(actions.changeRoute)
+};
 
-    return domService.createElement(
-        'div', [
-            Button(store.items, actions.addItem),
-            ClearButton(actions.clear),
-            List(store.items)
-        ]
-    )
+const render = (domService, historyService) => (state, actions) => {
+    onChangeRoute(historyService)(actions);
+
+    return routes(pages(domService, historyService))(state.currentRoute)(state, actions);
 };
 
 export default render;

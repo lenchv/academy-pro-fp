@@ -15,15 +15,27 @@ const match = x => ({
     otherwise: fn => fn(x),
 });
 
-const isObject = (value) => Object(value) === value;
+const isPlainObject = (value) => Object.prototype.toString.call(value) === '[object Object]';
 
 const reduce = (value, callback, initial) => match(value)
     .on(Array.isArray, value => value.reduce(callback, initial))
-    .on(isObject, value => Object.keys(value).reduce(
+    .on(isPlainObject, value => Object.keys(value).reduce(
         (result, key, i, arr) => callback(result, value[key], key, arr),
         initial
     ))
-    .otherwise((value) => reduce([value], calback, initial));
+    .otherwise((value) => reduce([value], callback, initial));
+
+const partial = (func, placeholder = []) => (...args) => {
+    return func(...args.reduce((args, arg) => {
+        const i = args.indexOf(undefined);
+
+        return ifElse(
+            i === -1,
+            [ ...args, arg ],
+            [ ...args.slice(0, i), arg, ...args.slice(i + 1) ]
+        );
+    }, placeholder));
+};
 
 export {
     inject,
@@ -31,5 +43,6 @@ export {
     basePipe,
     pipe,
     match,
-    reduce
+    reduce,
+    partial
 };
