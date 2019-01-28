@@ -1,14 +1,25 @@
-import { pipe, partial } from "../../functions/index.js";
+import { pipe, partial, inject } from "../../functions/index.js";
 import { cssToString } from '../helpers/index.js';
 
 const Link = ({ on }, historyService) => (changeRoute) => (element, route) => on(
     element,
     'click',
     () => {
-        historyService.changeRoute(route);
-        changeRoute(route);
+        historyService.redirect(changeRoute)(route);
     }
 );
+
+const Button = ({ createElement, on }) => (title, onChange) => pipe(
+    createElement,
+    partial(on, [ undefined, 'click', onChange]),
+)('button', title);
+
+const TextInput = ({ createElement, setAttribute, setProperty, on }) => (value, onChange) => pipe(
+    createElement,
+    partial(setAttribute, [ undefined, 'type', 'text' ]),
+    partial(setProperty, [ undefined, 'value', value ]),
+    partial(on, [ undefined, 'change', onChange]),
+)('input');
 
 const Checkbox = ({ createElement, setAttribute, setProperty, on }) => (value, onCheck) => pipe(
     createElement,
@@ -16,6 +27,23 @@ const Checkbox = ({ createElement, setAttribute, setProperty, on }) => (value, o
     partial(setProperty, [ undefined, 'checked', value ]),
     partial(on,  [ undefined, 'change', onCheck ])
 )('input');
+
+const DateInput = ({ createElement, setAttribute, setProperty, on }) => (value, onChange) => pipe(
+    createElement,
+    partial(setAttribute, [ undefined, 'type', 'date' ]),
+    partial(setProperty, [ undefined, 'value', value ]),
+    partial(on,  [ undefined, 'change', onChange ])
+)('input');
+
+const TagInput = ((components) => (...services) => (tags, addTag, changeTag) => {
+    const {
+        TextInput, Button
+    } = inject(components)(...services);
+
+    return tags
+        .map((tag, i) => TextInput(tag, changeTag.bind(null, i)))
+        .concat(Button('+', addTag));
+})({ TextInput, Button });
 
 const Anchor = ({ createElement, setAttribute, on }) => pipe(
     partial(createElement, [ 'a', undefined ]),
@@ -50,5 +78,14 @@ const Container = ({ createElement, setAttribute }) => pipe(
 );
 
 export {
-    Link, Checkbox, Anchor, Column, Row, Container
+    Link,
+    Checkbox,
+    Anchor,
+    Column,
+    Row,
+    Container,
+    TextInput,
+    Button,
+    TagInput,
+    DateInput
 };

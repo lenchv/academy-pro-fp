@@ -2,7 +2,7 @@ import { pipe, reduce } from '../functions/index.js';
 
 const appDispatcher = (uiDispatcher, actionDispatcher) => (actions, store) => {
     const dispatch = (state) => {
-        console.log(state);
+        console.log(state.toJS());
         
         return uiDispatcher(state, actionDispatcher(actions)(dispatch)(state))
     };

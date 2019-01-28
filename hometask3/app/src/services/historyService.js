@@ -4,8 +4,9 @@ const getCurrentRoute = ({ location }) => () => {
     return location.hash.replace(/^#/, '');
 };
 
-const changeRoute = ({ history }) => (route) => {
+const redirect = ({ history }) => (changeRoute) => (route) => {
     history.pushState({}, '', '#' + route);
+    changeRoute(route);
 
     return route;
 };
@@ -18,6 +19,6 @@ const onChangeRoute = (window) => (changeRoute) => {
 
 export default inject({
     getCurrentRoute,
-    changeRoute,
+    redirect,
     onChangeRoute
 });

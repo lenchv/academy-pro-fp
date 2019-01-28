@@ -1,19 +1,19 @@
 import { inject } from '../../../functions/index.js';
 import { Container, Row, Column } from '../../components/index.js';
-import bookService from '../../../services/bookService.js';
+import Header from '../../components/Header.js';
+import Book from '../../helpers/Book.js';
 
-const DetailPage = (components) => (domService, ...otherServices) => (id, state, actions) => {
+const DetailPage = (components) => (domService, ...otherServices) => (book, state, actions) => {
     const {
         Container,
         Row,
-        Column
+        Column,
+        Header
     } = inject(components)(domService, ...otherServices);
     const { createElement } = domService;
 
-    const book = bookService.findById(state.books, id);
-    
     return createElement('div', [
-        createElement('h1', book.title),
+        Header(book.title, actions.changeRoute),
         Container([
             Row([
                 Column(3)('Title :'), Column(9)(book.title),
@@ -37,4 +37,4 @@ const DetailPage = (components) => (domService, ...otherServices) => (id, state,
     ]);
 };
 
-export default DetailPage({ Container, Row, Column });
+export default Book(DetailPage({ Container, Row, Column, Header }));

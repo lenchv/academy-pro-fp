@@ -35,18 +35,18 @@ const ListItem = (components) => (...services) => (item, actions) => {
         ),
         Column(1)(
             Link(actions.changeRoute)(
-                Anchor('\u270B'),
+                Anchor('detail'),
                 '/book/' + item.id
             )
         ),
         Column(1)(
             Link(actions.changeRoute)(
-                Anchor('\u270D'),
+                Anchor('edit'),
                 '/book/' + item.id + '/edit'
             )
         ),
         Column(1)(
-            onDelete(Anchor('\u2716'), item.id, actions.deleteBook),
+            onDelete(Anchor('delete'), item.id, actions.deleteBook),
         )
     ]);
 };

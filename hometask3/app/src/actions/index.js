@@ -1,40 +1,69 @@
+import bookService from "../services/bookService.js";
+import { pipe, partial } from "../functions/index.js";
 
-const addItem = state => data => {
-    return { ...state, items: [...state.items, data] };
-};
+const changeRoute = state => route => state.set(
+    'currentRoute',
+    route
+);
 
-const clear = state => () => {
-    return { ...state, items: [] };
-};
+const markAsRead = (state) => (id) => state.set(
+    'books',
+    pipe(
+        partial(bookService.findById, [undefined, id]),
+        bookService.markAsRead,
+        partial(bookService.set, [ state.get('books'), undefined ])
+    )(state.get('books'))
+);
 
-const changeRoute = state => route => {
-    return { ...state, currentRoute: route };
-};
+const deleteBook = (state) => (id) => state.set(
+    'books',
+    bookService.deleteBook(state.get('books'), id)
+);
 
-const findBook = (books, id) => {
-    return books.find(book => book.id === id);
-};
+const changeCreatedBookProperty = (state) => (property, value) => state.set(
+    'createdBook',
+    bookService.changeProperty(
+        state.get('createdBook') || bookService.getBook(),
+        property,
+        value
+    )
+);
 
-const setBookData = (books, id, data) => {
-    const i = books.findIndex(book => book.id === id);
+const addBook = (state) => () => state.set(
+    'books',
+    bookService.set(
+        state.get('books'),
+        bookService.getBook(
+            state.get('createdBook')
+        )
+    )
+).set(
+    'createdBook',
+    null
+);
 
-    return [ ...books.slice(0, i), { ...books[i], ...data }, ...books.slice(i + 1) ];
-};
+const addCreatedBookTag = (state) => () => state.set(
+    'createdBook',
+    bookService.addTag(
+        state.get('createdBook') || bookService.getBook()
+    )
+);
 
-const markAsRead = (state) => (id) => {
-    return { ...state, books: setBookData(state.books, id, { isRead: !findBook(state.books, id).isRead }) }
-};
-
-const deleteBook = (state) => (id) => {
-    const i = state.books.findIndex(book => book.id === id);
-
-    return { ...state, books: [ ...state.books.slice(0, i), ...state.books.slice(i + 1) ]};
-};
+const changeCreatedBookTag = (state) => (tagNumber, value) => state.set(
+    'createdBook',
+    bookService.changeTag(
+        state.get('createdBook'),
+        tagNumber,
+        value
+    )
+);
 
 export default {
-    addItem,
-    clear,
     changeRoute,
     markAsRead,
-    deleteBook
+    deleteBook,
+    changeCreatedBookProperty,
+    addBook,
+    addCreatedBookTag,
+    changeCreatedBookTag
 };
