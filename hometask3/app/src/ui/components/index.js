@@ -35,13 +35,16 @@ const DateInput = ({ createElement, setAttribute, setProperty, on }) => (value, 
     partial(on,  [ undefined, 'change', onChange ])
 )('input');
 
-const TagInput = ((components) => (...services) => (tags, addTag, changeTag) => {
+const TagInput = ((components) => (...services) => (tags, addTag, changeTag, removeTag) => {
     const {
         TextInput, Button
     } = inject(components)(...services);
 
     return tags
-        .map((tag, i) => TextInput(tag, changeTag.bind(null, i)))
+        .reduce((tags, tag, i) => tags.concat([
+            TextInput(tag, changeTag.bind(null, i)),
+            Button('X', removeTag.bind(null, i))
+        ]), [])
         .concat(Button('+', addTag));
 })({ TextInput, Button });
 

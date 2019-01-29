@@ -45,6 +45,10 @@ const changeTag = (book, tagNumber, value) => {
     return changeProperty(book, 'tags', Immutable.List(book.tags).set(tagNumber, value).toArray());
 };
 
+const removeTag = (book, tagNumber) => {
+    return changeProperty(book, 'tags', Immutable.List(book.tags).delete(tagNumber).toArray());
+};
+
 export default {
     set,
     markAsRead,
@@ -53,5 +57,6 @@ export default {
     getBook,
     changeProperty,
     addTag,
-    changeTag
+    changeTag,
+    removeTag
 };

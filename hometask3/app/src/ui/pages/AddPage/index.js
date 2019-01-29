@@ -55,6 +55,8 @@ const AddPage = (components) => (domainService, historyService, ...others) => (s
                     actions.addCreatedBookTag();
                 }, (tagNumber, e) => {
                     actions.changeCreatedBookTag(tagNumber, e.target.value);
+                }, (tagNumber) => {
+                    actions.removeCreatedBookTag(tagNumber);
                 }))
             ]),
             Row([
