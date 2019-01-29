@@ -1,12 +1,11 @@
 import { inject } from "../../../functions/index.js";
 import { Container, Row, Column, TextInput, Checkbox, Button, TagInput, DateInput } from "../../components/index.js";
+import { getDate } from "../../helpers/index.js";
 
 const Header = ({ createElement }) => () => createElement(
     'h1',
     'Add Book'
 );
-
-const getDate = (date) => `${date.getFullYear()}-${(date.getMonth() + 1 + '').padStart(2, '0')}-${(date.getDate() + '').padStart(2, '0')}`;
 
 const AddPage = (components) => (domainService, historyService, ...others) => (state, actions) => {
     const {

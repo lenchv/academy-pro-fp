@@ -49,6 +49,15 @@ const removeTag = (book, tagNumber) => {
     return changeProperty(book, 'tags', Immutable.List(book.tags).delete(tagNumber).toArray());
 };
 
+const filterBooks = (books, { author, date, isRead, tags }) => {
+    return books.filter(book => [
+        ifElse(author, book.author === author, true),
+        ifElse(date, () => book.date.getTime() === date.getTime(), () => true)(),
+        ifElse(isRead, book.isRead === isRead, true),
+        ifElse(tags.length, tags.every(tag => book.tags.includes(tag.trim())), true),
+    ].every(Boolean));
+};
+
 export default {
     set,
     markAsRead,
@@ -58,5 +67,6 @@ export default {
     changeProperty,
     addTag,
     changeTag,
-    removeTag
+    removeTag,
+    filterBooks
 };

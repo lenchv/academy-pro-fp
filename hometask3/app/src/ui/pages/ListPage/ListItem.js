@@ -16,7 +16,7 @@ const ListItem = (components) => (...services) => (item, actions) => {
     } = inject(components)(...services);
 
     return Row([
-        Column(2)(
+        Column(1)(
             Checkbox(item.isRead, () => {
                 actions.markAsRead(item.id);
             })
@@ -33,6 +33,12 @@ const ListItem = (components) => (...services) => (item, actions) => {
                 '/book/' + item.id
             )
         ),
+        Column(2)(
+            item.date.toLocaleDateString()
+        ),
+        Column(2)(
+            item.tags.join(',')
+        ),
         Column(1)(
             Link(actions.changeRoute)(
                 Anchor('detail'),
@@ -46,7 +52,7 @@ const ListItem = (components) => (...services) => (item, actions) => {
             )
         ),
         Column(1)(
-            onDelete(Anchor('delete'), item.id, actions.deleteBook),
+            onDelete(Anchor('delete'), item.id, actions.deleteBook)
         )
     ]);
 };

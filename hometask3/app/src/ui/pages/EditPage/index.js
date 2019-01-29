@@ -2,8 +2,7 @@ import { inject } from '../../../functions/index.js';
 import { Container, Row, Column, TextInput, Checkbox, Button, TagInput, DateInput } from "../../components/index.js";
 import Header from '../../components/Header.js';
 import Book from '../../helpers/Book.js';
-
-const getDate = (date) => `${date.getFullYear()}-${(date.getMonth() + 1 + '').padStart(2, '0')}-${(date.getDate() + '').padStart(2, '0')}`;
+import { getDate } from '../../helpers/index.js';
 
 const EditPage = (components) => (domService, ...otherServices) => (book, state, actions) => {
     const {

@@ -103,6 +103,11 @@ const removeEditedBookTag = (state) => (id, tagNumber) => state.set(
     )(state.get('books'))
 );
 
+const changeFilter = (state) => (key, value) => state.set(
+    'filter',
+    {...state.get('filter'), [key]: value}
+);
+
 export default {
     changeRoute,
     markAsRead,
@@ -115,5 +120,6 @@ export default {
     addEditedBookTag,
     changeEditedBookTag,
     removeEditedBookTag,
-    removeCreatedBookTag
+    removeCreatedBookTag,
+    changeFilter
 };
